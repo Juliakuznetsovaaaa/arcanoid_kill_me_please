@@ -2,7 +2,7 @@
 #include "Paddle.h"
 #include "Source.cpp"
 
-Paddle::Paddle()
+Paddle::Paddle() 
 {
 	width = PADDLE_WIDTH;
 	height = PADDLE_HEIGHT;

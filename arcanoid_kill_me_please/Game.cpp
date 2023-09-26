@@ -110,10 +110,10 @@ bool delLife(Text& text, Vector2f& ballCoordinates, Paddle& paddle, Vector2f& ve
 
 		ball.shape.setPosition(BALL_POS_X, BALL_POS_Y);
 		paddle.shape.setPosition(paddle.getX(), paddle.getY());
-		paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - l * 10, PADDLE_HEIGHT));
+		paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - (l+1) * 10, PADDLE_HEIGHT));
 		if (isSecondLife) {
 			if (isPaddleChange) {
-				paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - l * 10 + 10, PADDLE_HEIGHT));
+				paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - (l+1) * 10 + 10, PADDLE_HEIGHT));
 				isPaddleChange = false;
 			}
 			extralife.setFillColor(sf::Color::Transparent);

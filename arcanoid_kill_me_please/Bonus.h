@@ -8,7 +8,7 @@ public:
 	Bonus(float posX, float posY);
 	sf::CircleShape getCircleShape() { bonusBall.move(0, 0.5);  return bonusBall; }
 	sf::CircleShape getCirclOnlyeShape() { return bonusBall; }
-	~Bonus() {};
+	virtual ~Bonus() = default;
 	virtual void active(sf::RectangleShape& shape, sf::Vector2f& velocity, float newCharactery) = 0;
 };
 
