@@ -2,11 +2,15 @@
 #include "Paddle.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+
+
 class Bonus {
 protected:
     sf::Clock timer;
 
 public:
+    sf::CircleShape shape;
+    virtual void activate(Paddle& paddle) = 0;
     virtual void applyBonus(sf::RectangleShape& shape, sf::Vector2f& velocity) = 0;
     virtual bool isExpired() = 0;
 };

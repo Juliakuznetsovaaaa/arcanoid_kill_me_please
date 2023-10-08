@@ -13,9 +13,6 @@ Field::Field()
 
 int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 {
-
-
-
 	int zeroLifeBlocks = 0;
 	float posX = 0, posY = 0;
 

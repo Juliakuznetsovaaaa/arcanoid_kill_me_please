@@ -24,10 +24,10 @@ void bonusActive(Bonus* bonus, sf::RectangleShape& shape, sf::Vector2f& velocity
 
 void processBonusCollision(Bonus* bonus, Paddle& paddle) {
        // Обрабатываем столкновение бонусного шарика с ракеткой
-       if (bonus->shape.getGlobalBounds().intersects(paddle.shape.getGlobalBounds())) {
-           // Активируем бонус
-           bonus->activate(paddle);
-       }
+       //if (bonus->shape.getGlobalBounds().intersects(paddle.shape.getGlobalBounds())) {
+       //    // Активируем бонус
+       //    bonus->activate(paddle);
+       //}
    }
 
 void updateBonuses(std::vector<Bonus*>& bonuses, sf::RectangleShape& shape, sf::Vector2f& velocity,
@@ -87,7 +87,19 @@ void moveBall(Ball& ball, Paddle& paddle, sf::Vector2f& velocity, int& p, std::v
 
 		velocity.y = -velocity.y;
 	}
+	for (auto it = bonusBalls.begin(); it != bonusBalls.end();) {
+        if (ball.shape.getGlobalBounds().intersects(it->getGlobalBounds())) {
+            // Активация бонуса
+            // ... выполнение специфичных действий для бонуса ...
+            // Удаление бонусного шарика
+            it = bonusBalls.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
 }
+
 	
 
 
@@ -206,6 +218,8 @@ int Game::start() {
 	bool isSecondLife = false;
 	bool isDiffrentDirection = false;
 
+	std::vector<sf::CircleShape> bonusBalls;
+
 	Font font;
 	font.loadFromFile("ArialRegular.ttf");
 	Text text;
@@ -260,6 +274,9 @@ int Game::start() {
 
 		for (auto& brick : field.blocks) window.draw(brick);
 		for (auto& life : field.lifes) window.draw(life);
+		for (auto& bonusBall : bonusBalls) {
+           widow.draw(bonusBall);
+        }
 		window.draw(text);
 		window.draw(paddle.shape);
 		window.draw(ball.shape);
