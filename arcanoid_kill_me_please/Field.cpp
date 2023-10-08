@@ -13,6 +13,9 @@ Field::Field()
 
 int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 {
+
+
+
 	int zeroLifeBlocks = 0;
 	float posX = 0, posY = 0;
 
@@ -31,6 +34,18 @@ int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 			if (blockColor == sf::Color::Green) {
 				zeroLifeBlocks += 1;
 			}
+			int bonusChance = rand() % 10;
+			if (bonusChance == 0) {
+				// Генерируем позицию для бонусного шарика
+				float bonusPosX = posX + BLOCK_SIDE / 2;
+				float bonusPosY = posY + BLOCK_SIDE / 2;
+				// Создаем и настраиваем бонусный шарик
+				sf::CircleShape bonusBall(BONUS_RADIUS);
+				bonusBall.setFillColor(sf::Color::Yellow);
+				bonusBall.setPosition(bonusPosX, bonusPosY);
+				// Добавляем бонусный шарик в blocks вместо обычного блока
+				blocks.push_back(bonusBall);
+			}
 			shape.setSize(sf::Vector2f(BLOCK_SIDE, BLOCK_SIDE));
 			shape.setFillColor(blockColor);
 			shape.setPosition(posX, posY);
@@ -41,6 +56,8 @@ int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 		}
 	return zeroLifeBlocks;
 }
+
+
 void Field::generateLife() {
 	float radius = 20;
 	for (auto i = 0; i < 3; i++) {
