@@ -31,17 +31,17 @@ int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 			if (blockColor == sf::Color::Green) {
 				zeroLifeBlocks += 1;
 			}
-			int bonusChance = rand() % 10;
+			int bonusChance = rand() % 5;
 			if (bonusChance == 0) {
 				// Генерируем позицию для бонусного шарика
 				float bonusPosX = posX + BLOCK_SIDE / 2;
 				float bonusPosY = posY + BLOCK_SIDE / 2;
 				// Создаем и настраиваем бонусный шарик
-				sf::CircleShape bonusBall(BONUS_RADIUS);
-				bonusBall.setFillColor(sf::Color::Yellow);
+				sf::CircleShape bonusBall(10);
+				bonusBall.setFillColor(sf::Color::Magenta);
 				bonusBall.setPosition(bonusPosX, bonusPosY);
 				// Добавляем бонусный шарик в blocks вместо обычного блока
-				blocks.push_back(bonusBall);
+				bonusBalls.push_back(bonusBall);
 			}
 			shape.setSize(sf::Vector2f(BLOCK_SIDE, BLOCK_SIDE));
 			shape.setFillColor(blockColor);

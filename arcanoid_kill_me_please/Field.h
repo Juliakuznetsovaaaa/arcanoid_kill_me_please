@@ -10,6 +10,8 @@ protected:
 
 public:
 	std::vector<sf::RectangleShape> blocks;
+	std::vector<sf::CircleShape> bonusBalls;
+
 	Field();
 	std::vector<sf::CircleShape> lifes;
 	~Field() {};

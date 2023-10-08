@@ -24,10 +24,10 @@ void bonusActive(Bonus* bonus, sf::RectangleShape& shape, sf::Vector2f& velocity
 
 void processBonusCollision(Bonus* bonus, Paddle& paddle) {
        // Обрабатываем столкновение бонусного шарика с ракеткой
-       //if (bonus->shape.getGlobalBounds().intersects(paddle.shape.getGlobalBounds())) {
-       //    // Активируем бонус
-       //    bonus->activate(paddle);
-       //}
+       if (bonus->shape.getGlobalBounds().intersects(paddle.shape.getGlobalBounds())) {
+           // Активируем бонус
+           bonus->activate(paddle);
+       }
    }
 
 void updateBonuses(std::vector<Bonus*>& bonuses, sf::RectangleShape& shape, sf::Vector2f& velocity,
@@ -76,7 +76,7 @@ void movePaddleAndBall(int& p, sf::Vector2f& paddleCoordinates, Paddle& paddle, 
 	}
 }
 
-void moveBall(Ball& ball, Paddle& paddle, sf::Vector2f& velocity, int& p, std::vector<Bonus*>& bonuses) {
+void moveBall(Ball& ball, Paddle& paddle, sf::Vector2f& velocity, int& p, std::vector<Bonus*>& bonuses, std::vector<sf::CircleShape>& bonusBalls) {
 	if (ball.shape.getPosition().x < 0 || ball.shape.getPosition().x>WINDOW_WEIDH - BALL_RADIUS) {
 		velocity.x = -velocity.x;
 	}
@@ -198,7 +198,7 @@ int Game::start() {
 
 	unsigned int windowWidth = WINDOW_WEIDH, windowHeight = WINDOW_HEIGHT;
 	std::vector<sf::RectangleShape> bricks;
-	std::vector<sf::CircleShape> bonusBalls;
+	//std::vector<sf::CircleShape> bonusBalls;
 	int l = 0; int p = 0;  int count = 0;
 	int score = 0;
 	float paddelCurrentWeigth = PADDLE_WIDTH;
@@ -218,7 +218,7 @@ int Game::start() {
 	bool isSecondLife = false;
 	bool isDiffrentDirection = false;
 
-	std::vector<sf::CircleShape> bonusBalls;
+	//std::vector<sf::CircleShape> bonusBalls;
 
 	Font font;
 	font.loadFromFile("ArialRegular.ttf");
@@ -260,7 +260,7 @@ int Game::start() {
 
 			ball.shape.move(velocity);
 			Vector2f b = ball.shape.getPosition();
-			moveBall(ball, paddle, velocity, p, bonuses);
+			moveBall(ball, paddle, velocity, p, bonuses, field.bonusBalls);
 			if (delLife(text, b, paddle, velocity, ball, p, l, isSpeedChange, isPaddleChange, isSecondLife, isDiffrentDirection, extralife, score, bonuses)) {
 
 				field.delLife();
@@ -274,8 +274,8 @@ int Game::start() {
 
 		for (auto& brick : field.blocks) window.draw(brick);
 		for (auto& life : field.lifes) window.draw(life);
-		for (auto& bonusBall : bonusBalls) {
-           widow.draw(bonusBall);
+		for (auto& bonusBall : field.bonusBalls) {
+           window.draw(bonusBall);
         }
 		window.draw(text);
 		window.draw(paddle.shape);
