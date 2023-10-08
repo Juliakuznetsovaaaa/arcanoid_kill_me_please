@@ -14,8 +14,8 @@ const float PADDLE_POS_X = 1.5 * PADDLE_WIDTH;
 const float PADDLE_POS_Y = WINDOW_HEIGHT - 100;
 
 
-const float BALL_RADIUS = 12;
+const float BALL_RADIUS = 10;
 const float BALL_POS_X = WINDOW_WEIDH / 2 - BALL_RADIUS;
 const float BALL_POS_Y = PADDLE_POS_Y - 2 * BALL_RADIUS;
 
-const float SPEED = 0.2;
+const float SPEED = 0.3;

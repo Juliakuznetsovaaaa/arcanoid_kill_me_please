@@ -10,8 +10,6 @@ Block::Block(float blockHeight, float blockWidth, float posX, float posY, int bl
 	color = blockColor;
 }
 
-
-
 void Block::updateHealth(int new_health)
 {
 	health += new_health;

@@ -21,6 +21,9 @@ int Field::generateField(std::vector<sf::RectangleShape>& blocks)
 
 	for (auto i = 0; i < BLOCKS_IN_COL; i++)
 		for (auto j = 0; j < BLOCKS_IN_ROW; j++) {
+			if ((i + j) % 2 == 0) {
+				continue;
+			}
 			posX = j * BLOCK_SIDE;
 			posY = i * BLOCK_SIDE + BLOCK_SIDE;
 			setBlockType(blockColor, blockHealth);
@@ -94,7 +97,7 @@ int Field::getHealthByColor(sf::Color color)
 bool Field::isHealthZero(sf::RectangleShape& block)
 {
 	int health = getHealthByColor(block.getFillColor());
-	std::cout << "block get health " << health << std::endl;
+	//std::cout << "block get health " << health << std::endl;
 	if (health < 0) {
 		return false;
 	}
