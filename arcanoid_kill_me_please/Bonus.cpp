@@ -1,27 +1,39 @@
 #include "Bonus.h"
+#include "Source.cpp"
 
-void BallSpeed::active(sf::RectangleShape& shape, sf::Vector2f& velocity, float newCharacter)
+void PaddleWidthBonus::applyBonus() {
+       paddle.setSize(sf::Vector2f(paddle.getSize().x +100, paddle.getSize().y)); // Удваиваем ширину ракетки
+      // paddleCurrentWidth = paddle.getSize().x;
+       isActive = false;
+       timer.restart();
+
+   }
+
+void PaddleWidthBonus::deactive()
 {
-
-	velocity *= newCharacter;
+    sf::Vector2f paddleSize (paddle.getSize().x-100, PADDLE_HEIGHT);
+    paddle.setSize(paddleSize);
 }
 
-Bonus::Bonus(float posX, float posY)
+void BallSpeedBonus::deactive()
 {
-	bonusBall.setFillColor(sf::Color::White);
-	bonusBall.setRadius(10);
-	bonusBall.setPosition(posX, posY);
-
-
+    /*sf::Vector2f ballVelocity = bal.getVelocity();
+    sf::Vector2f velocity = sf::Vector2f(ballVelocity.x > 0 ? SPEED : -SPEED, ballVelocity.y > 0 ? SPEED : -SPEED);
+    bal.setVelocity(velocity);*/
+    ballVelocity /= bonusMultiplier;
+ 
 }
 
-void PaddelWidth::active(sf::RectangleShape& shape, sf::Vector2f& velocity, float newCharacter)
+void ChangeDirectionBonus::deactive()
 {
-	velocity.x += newCharacter;
-	shape.setSize(velocity);
+    sf::Vector2f ballVelocity = bal.getVelocity();
+    sf::Vector2f velocity = sf::Vector2f(-ballVelocity.x, -ballVelocity.y);
+    bal.setVelocity(velocity);
+    isActive = false;
 }
 
-void ExtraLife::active(sf::RectangleShape& shape, sf::Vector2f& velocity, float newCharacter)
+void ExtraLifeBonus::deactive()
 {
-	shape.setFillColor(sf::Color::Red);
+    line.setFillColor(sf::Color::Transparent);
+    isSecondLife = false;
 }

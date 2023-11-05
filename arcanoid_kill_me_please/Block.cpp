@@ -1,6 +1,6 @@
 #include "Block.h"
 
-Block::Block(float blockHeight, float blockWidth, float posX, float posY, int blockHealth, sf::Color blockColor)
+Block::Block(float blockHeight, float blockWidth, float posX, float posY, int blockHealth, sf::Color blockColor, bool isBonus)
 {
 	height = blockHeight;
 	width = blockWidth;
@@ -8,10 +8,15 @@ Block::Block(float blockHeight, float blockWidth, float posX, float posY, int bl
 	y = posY;
 	health = blockHealth;
 	color = blockColor;
+	hasbonus = isBonus;
+}
+bool Block::hasBonus() {
+	return hasbonus;
 }
 
-
-
+void Block::setHasBonus(bool bonus) {
+	hasbonus = bonus;
+}
 void Block::updateHealth(int new_health)
 {
 	health += new_health;

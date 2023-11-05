@@ -3,20 +3,35 @@
 #include "Bonus.h"
 #include "Ball.h"
 #include "Paddle.h"
+#include <memory>
+
+
 
 class Game {
 private:
-	int score;
+	
 	sf::RenderWindow window;
-
-
-public:
+	int deletedBlocks = 0;
+	int score;
+	int p;
+	int l;
+	std::vector<BonusBall> bonusBalls;
 	Field field;
 	Paddle paddle;
 	Ball ball;
-	int deletedBlocks = 0;
 
-	enum BonusType { SpeedUp, SlowDown, ExtraLife, PaddleWidth, DiffrentDirection }; // пример возможных типов бонусов
+public:
+	
+	
+	int delBlock();
+	void chancecl(int k, sf::RectangleShape& line, bool& isSecondLife);
+	bool delLife(bool isSecondLife, sf::RectangleShape& extralife);
+	void moveBall();
+	void movePaddleAndBall();
+	void BonusCollision();
+	void bonusAndPaddleCollusion(std::vector<BonusBall>::iterator it);
+	void deactiveBonus( std::vector<BonusBall>::iterator it);
+	void gameLogic();
 	Game();
 	~Game() {};
 	int start();

@@ -12,6 +12,7 @@ protected:
 	float x, y;
 
 public:
+	sf::Vector2f velocity;
 	sf::CircleShape shape;
 	bool isStart = false;
 	Ball();
@@ -21,4 +22,10 @@ public:
 	float getY();
 	float getSpeedX();
 	float getSpeedY();
+	void setVelocity(sf::Vector2f velocity) {
+		velocity = sf::Vector2f(velocity.x, velocity.y);
+	}
+	sf::Vector2f getVelocity() {
+		return velocity;
+	}
 };

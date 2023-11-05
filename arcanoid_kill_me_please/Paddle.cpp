@@ -14,15 +14,7 @@ Paddle::Paddle()
 
 }
 
-float Paddle::GetHeight(void)
-{
-	return height;
-}
 
-float Paddle::GetWidth(void)
-{
-	return width;
-}
 
 float Paddle::GetPosX(void)
 {

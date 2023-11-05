@@ -10,157 +10,237 @@ using namespace sf;
 
 
 bool paddledAndBallCollisin(Paddle paddle, sf::CircleShape ball) {
-	if (ball.getPosition().x >= paddle.shape.getPosition().x - BALL_RADIUS && ball.getPosition().x <= paddle.shape.getPosition().x + paddle.shape.getSize().x + BALL_RADIUS && ball.getPosition().y >= PADDLE_POS_Y - BALL_RADIUS && ball.getPosition().y <= PADDLE_POS_Y - 0.5 * BALL_RADIUS) {
-		return true;
-	}
-	else {
-		return false;
-	}
+	return(ball.getPosition().x >= paddle.shape.getPosition().x - BALL_RADIUS && ball.getPosition().x <= paddle.shape.getPosition().x + paddle.shape.getSize().x + BALL_RADIUS && ball.getPosition().y >= PADDLE_POS_Y - BALL_RADIUS && ball.getPosition().y <= PADDLE_POS_Y - 0.5 * BALL_RADIUS);
 }
-void bonusActive(Game::BonusType bonusType, Paddle& paddle, sf::Vector2f& velocity, PaddelWidth paddelWidth, BallSpeed ballSpeed, sf::RectangleShape& extraLifeShape, bool& isSpeedChange, bool& isPaddleChange, bool& isSecondLife, bool& isDiffrentDirection) {
-	sf::Vector2f paddleSize = paddle.shape.getSize();
-
-	switch (bonusType)
-	{
-	case Game::PaddleWidth:
-		std::cout << "PaddleWidth" << std::endl;
-		paddelWidth.active(paddle.shape, paddleSize, 100);
-		isPaddleChange = true;
-		break;
-	case Game::SpeedUp:
-		std::cout << "BallspeedUp" << std::endl;
-		ballSpeed.active(paddle.shape, velocity, 1.5);
-		isSpeedChange = true;
-		break;
-	case Game::SlowDown:
-		std::cout << "BallslowDown" << std::endl;
-		ballSpeed.active(paddle.shape, velocity, 0.5);
-		isSpeedChange = true;
-		break;
-	case Game::ExtraLife:
-		std::cout << "Exstra life" << std::endl;
-		extraLifeShape.setFillColor(sf::Color::White);
-		isSecondLife = true;
-		break;
-	case Game::DiffrentDirection:
-		isDiffrentDirection = true;
-	default:
-		break;
-	}
-
+void Game:: deactiveBonus( std::vector<BonusBall>::iterator it) {
+	(*it).bonus->deactive();
+	delete (*it).bonus;
+	it = bonusBalls.erase(it);
 }
-void updateBonuses(std::vector<Bonus*>& bonuses, Paddle& paddle, sf::Vector2f& velocity, PaddelWidth paddelWidth, BallSpeed ballSpeed, sf::RectangleShape& extraLifeShape, bool& isSpeedChange, bool& isPaddleChange, bool& isSecondLife, bool& isDiffrentDirection) {
-	Game::BonusType bonusType;
-	for (unsigned k = 0; k < bonuses.size(); k++) {
-		if (bonuses[k]->getCirclOnlyeShape().getPosition().y > WINDOW_HEIGHT) {
-			bonuses.erase(bonuses.begin() + k);
+
+void Game::bonusAndPaddleCollusion(std::vector<BonusBall>::iterator it) {
+	
+}
+void Game:: BonusCollision() 
+{
+	for (auto it = bonusBalls.begin(); it != bonusBalls.end(); ){
+		sf::FloatRect ballBonusBounds = (*it).shape.getGlobalBounds();
+		ballBonusBounds.left -= 4;
+		ballBonusBounds.top -= 4;
+		ballBonusBounds.width += 4;
+		ballBonusBounds.height += 4;
+		float angle = 0.1;
+		if (paddledAndBallCollisin(paddle,(*it).shape) ){
+			sf::Vector2f pddleSize = paddle.shape.getSize();
+
+			(*it).bonus->applyBonus();
+			std::cout << "bonus active" << std::endl;
+			int num = std::distance(bonusBalls.begin(), it);
+			(*it).shape.setPosition(250 + num * (3 * BONUS_BALL_RADIUS), 15);
+
 		}
-		else if (bonuses[k]->getCirclOnlyeShape().getGlobalBounds().intersects(paddle.shape.getGlobalBounds())) {
-			bonusType = static_cast<Game::BonusType>(rand() % (Game::BonusType::ExtraLife + 1));
-			bonusActive(bonusType, paddle, velocity, paddelWidth, ballSpeed, extraLifeShape, isSpeedChange, isPaddleChange, isSecondLife, isDiffrentDirection);
-			bonuses.erase(bonuses.begin() + k);
+		else if ((*it).shape.getPosition().y >= paddle.shape.getPosition().y + 50) {
+			delete (*it).bonus;
+			it = bonusBalls.erase(it);
 		}
-
-
+		else if ((*it).bonus->isExpired()) {
+			deactiveBonus(it);
+			std::cout << "its expired" << std::endl;
+		}
+		else {
+			++it;
+				
+		}
 	}
 }
+  
 
-void movePaddleAndBall(int& p, Vector2f& paddleCoordinates, Paddle& paddle, Ball& ball, int windowWidth, float& paddelCurrentWeigth) {
+void Game::movePaddleAndBall(){	
 	double spinBall = SPEED + 0.2;
 	if (Keyboard::isKeyPressed(Keyboard::Right))
-		if (paddleCoordinates.x < WINDOW_WEIDH - paddelCurrentWeigth) {
+		if (paddle.shape.getPosition().x < WINDOW_WEIDH - paddle.shape.getSize().x) {
 			paddle.shape.move(spinBall, 0);
 			if (p == 0)
 				ball.shape.move(spinBall, 0);
 		}
 
 	if (Keyboard::isKeyPressed(Keyboard::Left))
-		if (paddleCoordinates.x > 0) {
+		if (paddle.shape.getPosition().x > 0) {
 			paddle.shape.move(-spinBall, 0);
 			if (p == 0)
 				ball.shape.move(-spinBall, 0);
 		}
 	if (Keyboard::isKeyPressed(Keyboard::Space)) {
 		p = 1;
+		
 	}
 }
 
-void moveBall(Ball& ball, Paddle& paddle, sf::Vector2f& velocity, int& p) {
+void Game::moveBall() {
+	
 	if (ball.shape.getPosition().x < 0 || ball.shape.getPosition().x>WINDOW_WEIDH - BALL_RADIUS) {
-		velocity.x = -velocity.x;
+		ball.velocity.x = -ball.velocity.x;
 	}
 	if (ball.shape.getPosition().y < 50) {
-		velocity.y = -velocity.y;
+		ball.velocity.y = -ball.velocity.y;
 	}
 	if (paddledAndBallCollisin(paddle, ball.shape)) {
 
-		velocity.y = -velocity.y;
+		ball.velocity.y = -ball.velocity.y;
 	}
-
+	
 }
 
-bool delLife(Text& text, Vector2f& ballCoordinates, Paddle& paddle, Vector2f& velocity, Ball& ball, int& p, int& l, bool& isSpeedChange, bool& isPaddleChange, bool& isSecondLife, bool& isDiffrentDirection, sf::RectangleShape& extralife, int& score) {
-	if (ballCoordinates.y > WINDOW_HEIGHT - 10) {
+
+	
+
+
+
+
+bool Game:: delLife(bool isSecondLife, sf::RectangleShape& extralife) {
+	bool answer = false;
+	if (ball.shape.getPosition().y > WINDOW_HEIGHT - 10) {
 		p = 0;
-		if (isSpeedChange) {
-			velocity.y = -SPEED;
-			velocity.x = -SPEED;
-			isSpeedChange = false;
+		if (bonusBalls.size() > 0) {
+			for (auto it = bonusBalls.begin(); it != bonusBalls.end();) {
+				deactiveBonus(it);
+			}
 		}
+		std::cout << bonusBalls.size() << std::endl;
 
 		ball.shape.setPosition(BALL_POS_X, BALL_POS_Y);
 		paddle.shape.setPosition(paddle.getX(), paddle.getY());
-		paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - (l+1) * 10, PADDLE_HEIGHT));
 		if (isSecondLife) {
-			if (isPaddleChange) {
-				paddle.shape.setSize(sf::Vector2f(PADDLE_WIDTH - (l+1) * 10 + 10, PADDLE_HEIGHT));
-				isPaddleChange = false;
-			}
+			sf::Vector2f paddlesize = sf::Vector2f(PADDLE_WIDTH - (l + 1) * 10 + 10 , PADDLE_HEIGHT);
+			paddle.shape.setSize(paddlesize);
+			
 			extralife.setFillColor(sf::Color::Transparent);
 			isSecondLife = false;
-			return false;
+
 		}
+		else {
+			l++;
+			sf::Vector2f paddlesize = sf::Vector2f(PADDLE_WIDTH - (l + 1) * 10, PADDLE_HEIGHT);
+			paddle.shape.setSize(paddlesize);
+			score--;
+			if (l == 3) {
+				paddle.shape.setSize(sf::Vector2f(paddlesize));
+				ball.shape.setFillColor(Color::Transparent);
+				paddle.shape.setFillColor(Color::Transparent);
+			}
 
-		isDiffrentDirection = false;
-		l++;
-		if (l == 3) {
-
-			ball.shape.setFillColor(Color::Transparent);
-			paddle.shape.setFillColor(Color::Transparent);
+			answer = true;
 		}
-		score--;
-		text.setString("Score: " + std::to_string(score));
-
-		return true;
 	}
-	return false;
-
+	return answer;
 }
 
-void delBlock(int& score, Text& text, Field& field, Ball& ball, std::vector<RectangleShape>& bricks, Vector2f& ballCoordinates, Vector2f& velocity, std::vector<Bonus*>& bonuses, Paddle& paddle, int& deletedBlocks) {
-	std::vector<bool> isFilled(bricks.size(), false);
-	sf::FloatRect ballBounds = ball.shape.getGlobalBounds();
-	ballBounds.left -= 2;
-	ballBounds.top -= 2;
-	ballBounds.width += 4;
-	ballBounds.height += 4;
-	for (unsigned k = 0; k < bricks.size(); k++) {
-		if (ballBounds.intersects(bricks[k].getGlobalBounds()) && isFilled[k] != true) {
-			isFilled[k] = true;
-			velocity.y = -velocity.y;
-			if (field.isHealthZero(bricks[k])) {
-				deletedBlocks++;
-				score++;
-				text.setString("Score: " + std::to_string(score));
 
-				if (rand() % 2 == 0) {
-					bonuses.push_back(new BallSpeed(bricks[k].getPosition().x, bricks[k].getPosition().y));
-				}
-				bricks.erase(bricks.begin() + k);
+void Game:: chancecl(int k, sf::RectangleShape& line,  bool& isSecondLife) {
+	if (field.isHealthZero(field.blocks[k])) {
+		deletedBlocks++;
+		score++;
+		
+		if (0==0) {
+			float bonusPosX = field.blocks[k].getPosition().x;
+			float bonusPosY = field.blocks[k].getPosition().y;
+			sf::CircleShape bonusBall(10);
+			bonusBall.setFillColor(sf::Color::White);
+			bonusBall.setPosition(bonusPosX, bonusPosY);
+			int random = rand() % 5;
+			if (random == 0) {
+				PaddleWidthBonus* bonus = new PaddleWidthBonus(paddle.shape, 30.0f);
+				std::cout << "paddle" << std::endl;
+				bonusBalls.push_back(BonusBall(bonusBall, bonus));
 			}
-			break;
+			else if (random == 1) {
+				BallSpeedBonus* bonus = new BallSpeedBonus(ball.velocity, 1.6, 30.0f, ball);
+				std::cout << "slow up" << std::endl;
+				bonusBalls.push_back(BonusBall(bonusBall, bonus));
+			}
+			else if (random == 2) {
+				BallSpeedBonus* bonus = new BallSpeedBonus(ball.velocity, 0.4, 30.0f, ball);
+				std::cout << "slow down" << std::endl;
+				bonusBalls.push_back(BonusBall(bonusBall, bonus));
+
+			}
+			else if (random == 3) {
+				ExtraLifeBonus* bonus = new ExtraLifeBonus(isSecondLife, line);
+				std::cout << "second life" << std::endl;
+				bonusBalls.push_back(BonusBall(bonusBall, bonus));
+
+			}
+			else if (random == 4) {
+				ChangeDirectionBonus* bonus = new ChangeDirectionBonus(ball);
+				std::cout << "change direction" << std::endl;
+				bonusBalls.push_back(BonusBall(bonusBall, bonus));
+
+			}
+
+		}
+		field.blocks.erase(field.blocks.begin() + k);
+	}
+}
+
+int Game :: delBlock() {
+	sf::FloatRect ballBounds = ball.shape.getGlobalBounds();
+	ballBounds.left -= 9;
+	ballBounds.top -= 9;
+	ballBounds.width += 9;
+	ballBounds.height += 9;
+	float angle = 0.1;
+	float angleOffset = 0.1;
+
+	for (unsigned k = 0; k < field.blocks.size(); k++) {
+		if (ballBounds.intersects(field.blocks[k].getGlobalBounds()) ) {
+			
+			sf:: Vector2f velocity = Vector2f(-ball.velocity.x, -ball.velocity.y);
+			angle = std::atan2(velocity.y, velocity.x);
+			angle += ((rand() % 11) - 5) * M_PI / 180; 
+			velocity.x = std::cos(angle) * std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+			Vector2f brickPos = field.blocks[k].getPosition();
+			Vector2f ballPos = ball.shape.getPosition();
+			float overlapLeft = ball.shape.getPosition().x + ball.shape.getRadius() - brickPos.x;
+			float overlapRight = brickPos.x + BLOCK_SIDE - ball.shape.getPosition().x + ball.shape.getRadius();
+			float overlapTop = ball.shape.getPosition().y + ball.shape.getRadius() - brickPos.y;
+			float overlapBottom = brickPos.y + BLOCK_SIDE - ball.shape.getPosition().y + ball.shape.getRadius();
+			bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
+			bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+			float minOverlapX = ballFromLeft ? overlapLeft : overlapRight;
+			float minOverlapY = ballFromTop ? overlapTop : overlapBottom;
+			std::cout << minOverlapX << " " << minOverlapY <<std:: endl;
+			if (minOverlapX < minOverlapY ) {
+				if (abs(minOverlapX) - abs(minOverlapY) < 1) {
+					ball.velocity = Vector2f(velocity.x, velocity.y);
+				}
+				else if (abs(minOverlapX) > abs(minOverlapY)) {
+					ball.velocity = Vector2f(-velocity.x, velocity.y);
+					std::cout << ballFromLeft << std::endl;
+					velocity.x = ballFromLeft ? abs(velocity.x) : -abs(velocity.x);
+					ball.velocity = Vector2f(velocity.x, -velocity.y);
+				
+				}
+				
+					std::cout << ballFromLeft << std::endl;
+					velocity.x = ballFromLeft ? -abs(velocity.x) : abs(velocity.x);
+					ball.velocity = Vector2f(velocity.x, -velocity.y);
+				
+				
+			}
+			else if (minOverlapX == minOverlapY) {
+				ball.velocity = Vector2f(velocity.x, velocity.y);
+			}
+			else {
+				
+				std::cout << ballFromTop << std::endl;
+				velocity.y = ballFromTop ? -abs(velocity.y) : abs(velocity.y);
+				ball.velocity = Vector2f(-velocity.x, velocity.y);
+			}
+			return k;
 		}
 	}
+	return -1;
 }
 
 
@@ -168,25 +248,16 @@ void delBlock(int& score, Text& text, Field& field, Ball& ball, std::vector<Rect
 Game::Game()
 {
 	score = 0;
-
-	deletedBlocks = field.generateField(field.blocks);
+	p = 0;
+	l = 0;
+	std::vector<BonusBall> bonusBalls;
+	
 }
 int Game::start() {
-
-	setlocale(LC_ALL, "Russian");
-
+	
 	unsigned int windowWidth = WINDOW_WEIDH, windowHeight = WINDOW_HEIGHT;
-	std::vector<sf::RectangleShape> bricks;
-	std::vector<sf::CircleShape> bonusBalls;
-	int l = 0; int p = 0;  int count = 0;
-	PaddelWidth paddelWidth(paddle.GetPosX(), paddle.GetPosY());
-	BallSpeed ballSpeed(paddle.GetPosX(), paddle.GetPosY());
-	int score = 0;
-	float paddelCurrentWeigth = PADDLE_WIDTH;
-	Vector2f velocity(-SPEED, -SPEED);
-	sf::RenderWindow window(sf::VideoMode(WINDOW_WEIDH, WINDOW_HEIGHT), "Arcanoid");
-	Paddle paddle;
-	std::vector<Bonus*> bonuses;
+
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WEIDH, WINDOW_HEIGHT), "Arcanoid"); 
 
 	sf::RectangleShape extralife;
 	Vector2f extraLifeSize(WINDOW_WEIDH, 5);
@@ -194,75 +265,107 @@ int Game::start() {
 	extralife.setSize(extraLifeSize);
 	extralife.setFillColor(sf::Color::Transparent);
 
-	bool isPaddleChange = false;
-	bool isSpeedChange = false;
+	setlocale(LC_ALL, "Russian");
+
+	
+	//float paddelCurrentWeigth = PADDLE_WIDTH;
 	bool isSecondLife = false;
-	bool isDiffrentDirection = false;
+	
 
 	Font font;
 	font.loadFromFile("ArialRegular.ttf");
 	Text text;
 	text.setFont(font);
-	text.setString("Score: " + std::to_string(score));
 	text.setCharacterSize(24);
 	text.setPosition(WINDOW_WEIDH - 150, 10);
 	text.setFillColor(Color::White);
 	text.setString("Score: " + std::to_string(score));
 
-	Ball ball;
-	Field field;
-
+	std::cout << field.zeroLifeBlocks << std::endl;
 	field.generateLife();
+	deletedBlocks = field.zeroLifeBlocks;
+
+	sf::Image win;
+	win.loadFromFile("images\\win.jpg");
+	sf::Texture textureWin;
+	textureWin.loadFromImage(win);
+	sf::Sprite winSprite;
+	winSprite.setTexture(textureWin);
+	winSprite.setPosition(WINDOW_WEIDH / 2 - 400, 25);
+
+
+	sf::Texture textureUnWin;
+	textureUnWin.loadFromFile("images\\unwin.jpg");
+	sf::Sprite unwinSprite;
+	unwinSprite.setTexture(textureUnWin);
+	unwinSprite.setPosition(WINDOW_WEIDH / 2 - 400, 25);
 
 	while (window.isOpen()) {
 		Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == Event::Closed)
+			
 				window.close();
 		}
-		if (isDiffrentDirection && rand() % 3 == 0) {
-			velocity.y = -velocity.y;
-			velocity.x = -velocity.x;
-			isDiffrentDirection = false;
-
-		}
+		
 		Vector2f m = paddle.shape.getPosition();
 		if (deletedBlocks != BLOCKS_NUM) {
-			movePaddleAndBall(p, m, paddle, ball, windowWidth, paddelCurrentWeigth);
+			movePaddleAndBall();
 		}
 		else {
 			p = 0;
 		}
-		if (p == 1 && l != 3) {
 
-			ball.shape.move(velocity);
-			Vector2f b = ball.shape.getPosition();
-			moveBall(ball, paddle, velocity, p);
-			if (delLife(text, b, paddle, velocity, ball, p, l, isSpeedChange, isPaddleChange, isSecondLife, isDiffrentDirection, extralife, score)) {
+		if (p == 1 && l != 3 && deletedBlocks != BLOCKS_NUM) {
+			text.setString("Score: " + std::to_string(score));
+			
+			moveBall();
+			if (bonusBalls.size() > 0) {
+				BonusCollision();
+			}
+
+			if (delLife(isSecondLife, extralife)) {
 
 				field.delLife();
 			}
-			delBlock(score, text, field, ball, field.blocks, b, velocity, bonuses, paddle, deletedBlocks);
-			updateBonuses(bonuses, paddle, velocity, paddelWidth, ballSpeed, extralife, isSpeedChange, isPaddleChange, isSecondLife, isDiffrentDirection);
+
+			int k = delBlock();
+			if (k > -1) {
+				chancecl(k, extralife, isSecondLife);
+			}
+			ball.shape.move(ball.velocity);
+			
 		}
+		
+
 
 		window.clear();
-
+		
+		
 		for (auto& brick : field.blocks) window.draw(brick);
 		for (auto& life : field.lifes) window.draw(life);
-		for (auto& bonus : bonuses)
-		{
-			window.draw(bonus->getCircleShape());
-		}
+		for (auto& bonusBall : bonusBalls) {
+			if (bonusBall.shape.getPosition().y > 40){
+				bonusBall.shape.move(0, 0.2);
+			}
+		  
+           window.draw(bonusBall.shape);
+        }
 		window.draw(text);
-		window.draw(paddle.shape);
+		
 		window.draw(ball.shape);
+		window.draw(paddle.shape);
 		window.draw(extralife);
-
+		if (p != 1) {
+			if (deletedBlocks == BLOCKS_NUM) {
+				window.draw(winSprite);
+			}
+			else if (l == 3) {
+				window.draw(unwinSprite);
+			}
+		}
+		
 		window.display();
 	}
 	return 0;
 }
-
-
-

@@ -11,33 +11,37 @@ Field::Field()
 	generateField(blocks);
 }
 
-int Field::generateField(std::vector<sf::RectangleShape>& blocks)
+void Field::generateField(std::vector<sf::RectangleShape>& blocks)
 {
-	int zeroLifeBlocks = 0;
+	
 	float posX = 0, posY = 0;
 
 	sf::Color blockColor;
-	int blockHealth = 1;
-
+	
 	for (auto i = 0; i < BLOCKS_IN_COL; i++)
 		for (auto j = 0; j < BLOCKS_IN_ROW; j++) {
-			posX = j * BLOCK_SIDE;
-			posY = i * BLOCK_SIDE + BLOCK_SIDE;
-			setBlockType(blockColor, blockHealth);
+			
+			bool isBonus = false;
+			posX = BLOKS_DISTANCE_X * (j + 1) + (j * BLOCK_SIDE);
+			posY = BLOCK_SIDE + i * (BLOKS_DISTANCE_Y+ BLOCK_SIDE);
+			setBlockType(blockColor, blockLife);
 			sf::RectangleShape shape;
 			if (blockColor == sf::Color::Green) {
-				zeroLifeBlocks += 1;
+				zeroLifeBlocks ++;
+				std::cout << "zero life block has position " << posX << " " << posY << std::endl;
 			}
 			shape.setSize(sf::Vector2f(BLOCK_SIDE, BLOCK_SIDE));
 			shape.setFillColor(blockColor);
 			shape.setPosition(posX, posY);
 			shape.setOutlineThickness((BLOCK_SIDE) / -(BLOCK_SIDE - 10));
 			shape.setOutlineColor(sf::Color::Black);
-			Block newBlock(BLOCK_SIDE, BLOCK_SIDE, posX, posY, blockHealth, blockColor);
+			Block newBlock(BLOCK_SIDE, BLOCK_SIDE, posX, posY, blockLife, blockColor, isBonus);
 			blocks.push_back(shape);
+			blocksHealths.push_back(blockLife);
 		}
-	return zeroLifeBlocks;
 }
+
+
 void Field::generateLife() {
 	float radius = 20;
 	for (auto i = 0; i < 3; i++) {
@@ -71,37 +75,47 @@ int Field::getBlockInCol()
 {
 	return blocksInCol;
 }
-int Field::getHealthByColor(sf::Color color)
+int Field::getHealthByColor(sf::RectangleShape& block)
 {
-	if (color == colorArray[0]) {
-		return -1;
+	
+	int index = -1;
+	for (size_t i = 0; i < blocks.size(); i++) {
+		if (&block == &blocks[i]) {
+			index = i;
+			break;
+		}
 	}
-	else if (color == colorArray[1]) {
-		return 1;
+
+	if (index != -1) {
+		std::cout << blocksHealths[index] << std::endl;
+		return index;
+		//return blocksHealths[index];
+		
 	}
-	else if (color == colorArray[2]) {
-		return 2;
-	}
-	else if (color == colorArray[3]) {
-		return 3;
-	}
-	else {
-		return 100;
-	}
+	return -100;
 
 }
 
+
+
 bool Field::isHealthZero(sf::RectangleShape& block)
 {
-	int health = getHealthByColor(block.getFillColor());
-	std::cout << "block get health " << health << std::endl;
+	int index = getHealthByColor(block);
+	std::cout << "block get health " << blocksHealths[index] << std::endl;
+	std::cout << "block get index " << index << std::endl;
+
+	int health = blocksHealths[index];
 	if (health < 0) {
+	
 		return false;
 	}
 	if (health > 1) {
+		
 		block.setFillColor(colorArray[health - 1]);
+		blocksHealths[index] --;
 		return false;
 	}
+	blocksHealths.erase(blocksHealths.begin() + index);
 	return true;
 }
 
@@ -111,19 +125,23 @@ void Field::setBlockType(sf::Color& blockColor, int& blockHealth)
 	switch (rand() % CHANCE) {
 	case 0:
 		blockColor = colorArray[0];
-		blockHealth = 3;
+		blockLife =-1;
 		break;
 	case 1:
 		blockColor = colorArray[1];
-		blockHealth = 2;
+		blockLife = 1;
 		break;
 	case 2:
 		blockColor = colorArray[2];
-		blockHealth = 1;
+		blockLife = 2;
 		break;
 	default:
 		blockColor = colorArray[3];
-		blockHealth = -1;
+		blockLife = 3;
 	}
 }
+
+
+
+
 
