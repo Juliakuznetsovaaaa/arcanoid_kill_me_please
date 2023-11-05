@@ -11,7 +11,8 @@ Ball::Ball()
 	shape.setRadius(BALL_RADIUS);
 	shape.setFillColor(sf::Color::Red);
 	shape.setPosition(BALL_POS_X, BALL_POS_Y);
-	speedX = 0;
+	speedX =0;
+	velocity = sf::Vector2f(-SPEED, -SPEED);
 }
 float Ball::getRadius()
 {

@@ -61,8 +61,18 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="images\win.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <Font Include="ArialRegular.ttf">
       <Filter>Файлы ресурсов</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\unwin.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
 </Project>

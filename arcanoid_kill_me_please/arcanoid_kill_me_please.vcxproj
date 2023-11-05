@@ -153,6 +153,12 @@
   <ItemGroup>
     <Font Include="ArialRegular.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="images\win.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\unwin.jpg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
